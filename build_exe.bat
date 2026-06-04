@@ -10,6 +10,8 @@ set "BUILD_ROOT=build"
 set "DIST_DIR=%BUILD_ROOT%\%APP_NAME%"
 set "WORK_DIR=%BUILD_ROOT%\pyinstaller-work"
 set "SPEC_DIR=%BUILD_ROOT%"
+set "ICON_FILE=assets\sage.ico"
+set "ICON_FILE_ABS=%CD%\%ICON_FILE%"
 set "PYTHON_CMD="
 
 py -3 --version >nul 2>nul
@@ -41,6 +43,14 @@ if not exist "%ENTRY_FILE%" (
 if not exist "requirements.txt" (
     echo [ERROR] requirements.txt was not found.
     echo Please keep requirements.txt in the project root folder.
+    echo.
+    pause
+    exit /b 1
+)
+
+if not exist "%ICON_FILE%" (
+    echo [ERROR] %ICON_FILE% was not found.
+    echo Please keep the project icon at assets\sage.ico.
     echo.
     pause
     exit /b 1
@@ -81,12 +91,16 @@ if not exist "%BUILD_ROOT%" mkdir "%BUILD_ROOT%"
 
 echo.
 echo Building %APP_NAME%.exe...
+echo Icon:
+echo %ICON_FILE_ABS%
 %PYTHON_CMD% -m PyInstaller ^
     --noconfirm ^
     --clean ^
     --onefile ^
     --windowed ^
     --name "%APP_NAME%" ^
+    --icon "%ICON_FILE_ABS%" ^
+    --add-data "%ICON_FILE_ABS%;assets" ^
     --distpath "%DIST_DIR%" ^
     --workpath "%WORK_DIR%" ^
     --specpath "%SPEC_DIR%" ^

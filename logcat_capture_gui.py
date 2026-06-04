@@ -19,6 +19,7 @@ except ImportError:
 
 
 APP_TITLE = "Logcat Capture"
+APP_ICON_NAME = "sage.ico"
 LOGCAT_FORMAT = "threadtime"
 LOG_PREVIEW_FLUSH_INTERVAL_MS = 120
 LOG_PREVIEW_MAX_LINES = 1200
@@ -42,6 +43,12 @@ def bundled_base_dir() -> Path:
     if getattr(sys, "frozen", False):
         return Path(sys.executable).resolve().parent
     return Path(__file__).resolve().parent
+
+
+def resource_path(*parts: str) -> Path:
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        return Path(sys._MEIPASS, *parts)
+    return bundled_base_dir().joinpath(*parts)
 
 
 def candidate_adb_paths() -> list[Path]:
@@ -165,9 +172,18 @@ class LogcatCaptureApp(ctk.CTk):
         self.geometry("980x720")
         self.minsize(860, 620)
         self.protocol("WM_DELETE_WINDOW", self.on_close)
+        self.apply_window_icon()
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(3, weight=1)
+
+    def apply_window_icon(self) -> None:
+        icon_path = resource_path("assets", APP_ICON_NAME)
+        if icon_path.is_file():
+            try:
+                self.iconbitmap(str(icon_path))
+            except Exception:
+                pass
 
     def _build_layout(self) -> None:
         self.header = ctk.CTkFrame(self, corner_radius=0, fg_color=("gray95", "gray12"))
